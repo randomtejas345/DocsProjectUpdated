@@ -1,4 +1,7 @@
 
+
+//////
+
 import  Box  from "@mui/material/Box";
 import React from "react";
 import { useEffect ,useState} from "react";
@@ -13,6 +16,8 @@ import { useParams } from "react-router-dom";
 const Component= styled.div`
 background: #F5F5F5;
 `
+
+const VITE_API_URL=import.meta.env.VITE_API_URL
 
 
 
@@ -55,17 +60,11 @@ function Editor(){
         quillServer.setText("Loading the document.....");
         quillServer.disable();
         setQuill(quillServer);
-        // const socketServer=io("http://localhost:9000");
-        // setSocket(socketServer);
-
-        // return ()=>{
-        //     socketServer.disconnect();
-        // }
 
     },[])
 
     useEffect(()=>{
-        const socketServer=io("http://localhost:9000");
+        const socketServer=io(VITE_API_URL);
         setSocket(socketServer);
 
         return ()=>{
@@ -89,17 +88,7 @@ function Editor(){
             }
 
         }
-        //  if(!quill){console.log("Quill is not initialized");}
-        //  else{
 
-        //      quill.on("text-change",(delta,oldData,source)=>{
-        //          if(source!="user") return;
-        //         console.log(delta);
-        //         console.log(oldData);
-        //         console.log(source);
-        //      })
-
-        //   }
     },[quill,socket])
 
     useEffect(()=>{
@@ -151,7 +140,7 @@ function Editor(){
     },[socket,quill])
 
     return <Component>
-        <Box class="container" id='container'></Box>
+        <Box className="container" id='container'></Box>
     </Component> 
 
 }

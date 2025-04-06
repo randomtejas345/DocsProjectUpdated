@@ -1,22 +1,37 @@
 import { Server } from "socket.io";
-import http from "http";
-import Connection from "./databases/db.js";
+import express from "express"
+import Connection from "./src/db/index.js";
+import {createServer} from "http"
+import {getDocument,UpdateDocument} from "./src/controllers/document.controller.js"
+import "dotenv/config"
+import cors from "cors"
 
-import {getDocument,UpdateDocument} from "./controller/document-controller.js"
+Connection()
+.then(()=>{
+  console.log("MongoDB connected successfully!!!")
+})
+.catch((err)=>{
+  console.log("Error connecting MongoDB!!!")
+});
 
-Connection();
-const PORT = 9000;
-
+const app=express()
 // Create a basic HTTP server
-const server = http.createServer();
+app.use(cors({
+  origin:process.env.CORS_ORIGIN,
+  credentials:true
+}))
+
+const server = createServer(app);
 
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: process.env.CORS_ORIGIN,
     methods: ["GET", "POST"]
   }
 });
+
+
 
 io.on("connection", (socket) => {
   console.log("Connected");
@@ -25,13 +40,16 @@ io.on("connection", (socket) => {
         
         const data="";
         const document=await getDocument(documentId);
+        // if(!document){
+        //   console.log("")
+        // } 
+      
+
         socket.join(documentId);
         socket.emit("load-document",document.data);
 
         
         socket.on("send-changes",delta=>{
-          // console.log("cooonecccted");
-          // console.log(delta);
           socket.broadcast.to(documentId).emit("receive-changes",delta);
         })
         
@@ -47,21 +65,10 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+
+
+
+
+server.listen(process.env.PORT, () => {
+  console.log(`Server running on port ${process.env.PORT}`);
 });
-
-// import { Server } from "socket.io";
-
-// const PORT=9000;
-
-// const io=new Server(PORT,{
-//     cors:{
-//         origin:"http://localhost:3000",
-//         methods:["GET","POST"]
-//     }
-// });
-
-// io.on("connection",socket=>{
-//     console.log("Connected");
-// })
