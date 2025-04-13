@@ -1,10 +1,12 @@
 import { Server } from "socket.io";
 import express from "express"
-import Connection from "./src/db/index.js";
+import Connection from "./db/index.js";
 import {createServer} from "http"
-import {getDocument,UpdateDocument} from "./src/controllers/document.controller.js"
+import {getDocument,UpdateDocument} from "./controllers/document.controller.js"
 import "dotenv/config"
-import cors from "cors"
+import { app } from "./app.js"
+
+
 
 Connection()
 .then(()=>{
@@ -14,12 +16,7 @@ Connection()
   console.log("Error connecting MongoDB!!!")
 });
 
-const app=express()
-// Create a basic HTTP server
-app.use(cors({
-  origin:process.env.CORS_ORIGIN,
-  credentials:true
-}))
+
 
 const server = createServer(app);
 
@@ -40,6 +37,7 @@ io.on("connection", (socket) => {
         
         const data="";
         const document=await getDocument(documentId);
+        
         // if(!document){
         //   console.log("")
         // } 
@@ -53,7 +51,8 @@ io.on("connection", (socket) => {
           socket.broadcast.to(documentId).emit("receive-changes",delta);
         })
         
-        socket.on("save-document",async data=>{
+        socket.on("save-document",async (data)=>{
+          // console.log("Saved data looks like: ",data)
           await UpdateDocument(documentId,data);
         })
  })

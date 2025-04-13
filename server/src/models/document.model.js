@@ -1,6 +1,7 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-const documentSchema=mongoose.Schema({
+
+const documentSchema= new Schema({
     _id:{
           type:String,
           reqired:true
@@ -10,7 +11,7 @@ const documentSchema=mongoose.Schema({
         required:true
     }
     
-})
+},{timestamps:true})
 
 
 const document=mongoose.model("document",documentSchema);
